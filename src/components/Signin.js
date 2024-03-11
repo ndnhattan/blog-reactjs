@@ -1,6 +1,89 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import requestApi from "../helpers/api";
+import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import * as actions from "../redux/actions";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [loginData, setLoginData] = useState({});
+  const [formErrors, setFormErrors] = useState({});
+  const [isSubmit, setIsSubmit] = useState(false);
+
+  useEffect(() => {
+    if (isSubmit) {
+      validateForm();
+    }
+  }, [loginData]);
+
+  const onChange = (event) => {
+    let target = event.target;
+    setLoginData({
+      ...loginData,
+      [target.name]: target.value,
+    });
+  };
+
+  const validateForm = () => {
+    let isValid = true;
+    const errors = {};
+    if (loginData.email === "" || loginData.email === undefined) {
+      errors.email = "Please enter email";
+    } else {
+      let valid =
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+          loginData.email
+        );
+      if (!valid) {
+        errors.email = "Please enter valid email";
+      }
+    }
+
+    if (loginData.password === "" || loginData.password === undefined) {
+      errors.password = "Please enter password";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      isValid = false;
+      setFormErrors(errors);
+    } else {
+      setFormErrors({});
+    }
+
+    return isValid;
+  };
+
+  const onSubmit = () => {
+    const valid = validateForm();
+    if (valid) {
+      dispatch(actions.controlLoading(true));
+      requestApi("/auth/login", "POST", loginData)
+        .then((res) => {
+          localStorage.setItem("access_token", res.data.access_token);
+          localStorage.setItem("refresh_token", res.data.refresh_token);
+          dispatch(actions.controlLoading(false));
+          navigate("/");
+        })
+        .catch((err) => {
+          dispatch(actions.controlLoading(false));
+          if (typeof err.response !== undefined) {
+            if (err.response.status !== 201) {
+              toast.error(err.response.data.message, {
+                position: "top-center",
+              });
+            }
+          } else {
+            toast.error("Server is down. Please try again!", {
+              position: "top-center",
+            });
+          }
+        });
+    }
+    setIsSubmit(true);
+  };
+
   return (
     <div id="layoutAuthentication" className="bg-primary">
       <div id="layoutAuthentication_content">
@@ -21,46 +104,47 @@ const Login = () => {
                           className="form-control"
                           id="inputEmail"
                           type="email"
+                          name="email"
                           placeholder="name@example.com"
+                          onChange={onChange}
                         />
-                        <label for="inputEmail">Email address</label>
+                        <label htmlFor="inputEmail">Email address</label>
+                        {formErrors.email && (
+                          <p style={{ color: "red" }}>{formErrors.email}</p>
+                        )}
                       </div>
                       <div className="form-floating mb-3">
                         <input
                           className="form-control"
                           id="inputPassword"
                           type="password"
+                          name="password"
                           placeholder="Password"
+                          onChange={onChange}
                         />
-                        <label for="inputPassword">Password</label>
+                        <label htmlFor="inputPassword">Password</label>
+                        {formErrors.password && (
+                          <p style={{ color: "red" }}>{formErrors.password}</p>
+                        )}
                       </div>
-                      <div className="form-check mb-3">
-                        <input
-                          className="form-check-input"
-                          id="inputRememberPassword"
-                          type="checkbox"
-                          value=""
-                        />
-                        <label
-                          className="form-check-label"
-                          for="inputRememberPassword"
-                        >
-                          Remember Password
-                        </label>
-                      </div>
+
                       <div className="d-flex align-items-center justify-content-between mt-4 mb-0">
                         <a className="small" href="password.html">
                           Forgot Password?
                         </a>
-                        <a className="btn btn-primary" href="index.html">
+                        <button
+                          type="button"
+                          className="btn btn-primary"
+                          onClick={onSubmit}
+                        >
                           Login
-                        </a>
+                        </button>
                       </div>
                     </form>
                   </div>
                   <div className="card-footer text-center py-3">
                     <div className="small">
-                      <a href="register.html">Need an account? Sign up!</a>
+                      <Link to="/register">Need an account? Sign up!</Link>
                     </div>
                   </div>
                 </div>
