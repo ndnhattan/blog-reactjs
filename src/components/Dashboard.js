@@ -1,6 +1,17 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import requestApi from "../helpers/api";
 
 const Dashboard = () => {
+  const [dashboardData, setDashboardData] = useState({});
+
+  useEffect(() => {
+    requestApi("/users", "GET", [])
+      .then((res) => {
+        setDashboardData({ ...dashboardData, totalUsers: res.data.total });
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
   return (
     <div id="layoutSidenav_content">
       <main>
@@ -12,7 +23,13 @@ const Dashboard = () => {
           <div className="row">
             <div className="col-xl-3 col-md-6">
               <div className="card bg-primary text-white mb-4">
-                <div className="card-body">Primary Card</div>
+                <div className="card-body">Total Users</div>
+                {dashboardData.totalUsers !== undefined && (
+                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    {dashboardData.totalUsers}
+                    <span className="visually-hidden">unread messages</span>
+                  </span>
+                )}
                 <div className="card-footer d-flex align-items-center justify-content-between">
                   <a className="small text-white stretched-link" href="#">
                     View Details
