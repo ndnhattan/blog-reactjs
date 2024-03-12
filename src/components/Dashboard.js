@@ -10,7 +10,7 @@ const Dashboard = () => {
         setDashboardData({ ...dashboardData, totalUsers: res.data.total });
       })
       .catch((err) => console.log(err));
-  }, []);
+  }, [dashboardData]);
 
   return (
     <div id="layoutSidenav_content">
