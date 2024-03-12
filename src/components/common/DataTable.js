@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import LiveSearch from "./LiveSearch";
 
 const DataTable = ({
   name,
@@ -8,24 +9,52 @@ const DataTable = ({
   currentPage,
   onPageChange,
   onItemsPerPageChange,
+  onKeySearch,
+  onSelectedRows,
 }) => {
+  const [selectedRows, setSelectedRows] = useState([]);
+
   const renderHeaders = () => {
     return columns.map((column, index) => {
       return <th key={index}>{column.name}</th>;
     });
   };
 
+  useEffect(() => {
+    onSelectedRows(selectedRows);
+  }, [selectedRows]);
+
   const renderData = () => {
     return data?.map((row, index) => {
       return (
         <tr key={index}>
-          <td></td>
+          <td>
+            <input
+              checked={selectedRows.includes(String(row.id))}
+              type="checkbox"
+              value={row.id}
+              className="form-check-input"
+              onChange={handleClickCheckbox}
+            />
+          </td>
           {columns.map((column, ind) => {
             return <td key={ind}>{column.element(row)}</td>;
           })}
         </tr>
       );
     });
+  };
+
+  const handleClickCheckbox = (event) => {
+    let checked = event.target.checked;
+    let value = event.target.value;
+    if (checked) {
+      if (!selectedRows.includes(value)) {
+        setSelectedRows([...selectedRows, value]);
+      }
+    } else {
+      setSelectedRows(selectedRows.filter((item) => item !== value));
+    }
   };
 
   const renderPagination = () => {
@@ -76,6 +105,14 @@ const DataTable = ({
     onItemsPerPageChange(target.value);
   };
 
+  const onSelectAll = (event) => {
+    if (event.target.checked) {
+      setSelectedRows(data.map((item) => String(item.id)));
+    } else {
+      setSelectedRows([]);
+    }
+  };
+
   return (
     <div className="card mb-4">
       <div className="card-header">
@@ -104,7 +141,7 @@ const DataTable = ({
           <div className="col-sm-12 col-md-6">
             <label className="d-inline-flex float-end">
               Search:
-              {/* <LiveSearch onKeySearch={onKeySearch} /> */}
+              <LiveSearch onKeySearch={onKeySearch} />
             </label>
           </div>
         </div>
@@ -117,14 +154,12 @@ const DataTable = ({
             <tr>
               <td>
                 <input
-                  //   checked={
-                  //     selectedRows.length === data.length && data.length > 0
-                  //       ? true
-                  //       : false
-                  //   }
+                  checked={
+                    selectedRows.length === (data?.length ?? 0) ? true : false
+                  }
                   type="checkbox"
                   className="form-check-input"
-                  //   onChange={onSelectAll}
+                  onChange={onSelectAll}
                 />
               </td>
               {renderHeaders()}
