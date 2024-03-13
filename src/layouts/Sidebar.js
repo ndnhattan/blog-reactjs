@@ -42,7 +42,7 @@ const Sidebar = () => {
             >
               <nav className="sb-sidenav-menu-nested nav">
                 <Link
-                  to="/users"
+                  to="/users/add"
                   className="nav-link"
                   href="layout-static.html"
                 >
@@ -81,14 +81,14 @@ const Sidebar = () => {
             >
               <nav className="sb-sidenav-menu-nested nav">
                 <Link
-                  to="/users"
+                  to="/posts/add"
                   className="nav-link"
                   href="layout-static.html"
                 >
                   Add Post
                 </Link>
                 <Link
-                  to="/users"
+                  to="/posts"
                   className="nav-link"
                   href="layout-sidenav-light.html"
                 >

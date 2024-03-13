@@ -4,10 +4,11 @@ export default function requestApi(
   endpoint,
   method,
   body,
-  responseType = "json"
+  responseType = "json",
+  contentType = "application/json"
 ) {
   const headers = {
-    "Content-Type": "application/json",
+    "Content-Type": contentType,
     Accept: `application/json`,
     "Access-Control-Allow-Origin": "*",
   };

@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -57,14 +57,9 @@ const Header = () => {
             aria-labelledby="navbarDropdown"
           >
             <li>
-              <a className="dropdown-item" href="#!">
+              <Link to="/profile" className="dropdown-item">
                 Settings
-              </a>
-            </li>
-            <li>
-              <a className="dropdown-item" href="#!">
-                Activity Log
-              </a>
+              </Link>
             </li>
             <li>
               <hr className="dropdown-divider" />
